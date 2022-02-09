@@ -11,7 +11,7 @@ code-gen:
 						-v \
 						--package-name "client" \
 						--git-repo-id "go-redfish/client" \
-						--git-user-id Nordix \
+						--git-user-id salkin \
 						-p enumClassPrefix=true \
 						-o /local/client
 

@@ -1,4 +1,4 @@
-module github.com/Nordix/go-redfish/client
+module github.com/salkin/go-redfish/client
 
 go 1.13
 
