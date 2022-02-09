@@ -17,13 +17,59 @@ Install the following dependencies:
 go get github.com/stretchr/testify/assert
 go get golang.org/x/oauth2
 go get golang.org/x/net/context
-go get github.com/antihax/optional
 ```
 
 Put the package under your project folder and add the following in import:
 
 ```golang
-import "./client"
+import client "github.com/salkin/go-redfish/client"
+```
+
+To use a proxy, set the environment variable `HTTP_PROXY`:
+
+```golang
+os.Setenv("HTTP_PROXY", "http://proxy_name:proxy_port")
+```
+
+## Configuration of Server URL
+
+Default configuration comes with `Servers` field that contains server objects as defined in the OpenAPI specification.
+
+### Select Server Configuration
+
+For using other server than the one defined on index 0 set context value `sw.ContextServerIndex` of type `int`.
+
+```golang
+ctx := context.WithValue(context.Background(), client.ContextServerIndex, 1)
+```
+
+### Templated Server URL
+
+Templated server URL is formatted using default variables from configuration or from context value `sw.ContextServerVariables` of type `map[string]string`.
+
+```golang
+ctx := context.WithValue(context.Background(), client.ContextServerVariables, map[string]string{
+	"basePath": "v2",
+})
+```
+
+Note, enum values are always validated and all unused variables are silently ignored.
+
+### URLs Configuration per Operation
+
+Each operation can use different server URL defined using `OperationServers` map in the `Configuration`.
+An operation is uniquely identified by `"{classname}Service.{nickname}"` string.
+Similar rules for overriding default operation server index and variables applies by using `sw.ContextOperationServerIndices` and `sw.ContextOperationServerVariables` context maps.
+
+```
+ctx := context.WithValue(context.Background(), client.ContextOperationServerIndices, map[string]int{
+	"{classname}Service.{nickname}": 2,
+})
+ctx = context.WithValue(context.Background(), client.ContextOperationServerVariables, map[string]map[string]string{
+	"{classname}Service.{nickname}": {
+		"port": "8443",
+	},
+})
 ```
 
 ## Documentation for API Endpoints
@@ -32,17 +78,16 @@ All URIs are relative to *http://localhost*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
-*DefaultApi* | [**EjectVirtualMedia**](docs/DefaultApi.md#ejectvirtualmedia) | **Post** /redfish/v1/Managers/{managerId}/VirtualMedia/{virtualMediaId}/Actions/VirtualMedia.EjectMedia | 
-*DefaultApi* | [**GetManager**](docs/DefaultApi.md#getmanager) | **Get** /redfish/v1/Managers/{managerId} | 
-*DefaultApi* | [**GetManagerVirtualMedia**](docs/DefaultApi.md#getmanagervirtualmedia) | **Get** /redfish/v1/Managers/{managerId}/VirtualMedia/{virtualMediaId} | 
-*DefaultApi* | [**GetRoot**](docs/DefaultApi.md#getroot) | **Get** /redfish/v1 | 
-*DefaultApi* | [**GetSystem**](docs/DefaultApi.md#getsystem) | **Get** /redfish/v1/Systems/{systemId} | 
+*DefaultApi* | [**GetManager**](docs/DefaultApi.md#getmanager) | **Get** /redfish/v1/Managers/{managerId}/ | 
+*DefaultApi* | [**GetManagerVirtualMedia**](docs/DefaultApi.md#getmanagervirtualmedia) | **Get** /redfish/v1/Managers/{managerId}/VirtualMedia/{virtualMediaId}/ | 
+*DefaultApi* | [**GetRoot**](docs/DefaultApi.md#getroot) | **Get** /redfish/v1/ | 
+*DefaultApi* | [**GetSystem**](docs/DefaultApi.md#getsystem) | **Get** /redfish/v1/Systems/{systemId}/ | 
 *DefaultApi* | [**InsertVirtualMedia**](docs/DefaultApi.md#insertvirtualmedia) | **Post** /redfish/v1/Managers/{managerId}/VirtualMedia/{virtualMediaId}/Actions/VirtualMedia.InsertMedia | 
-*DefaultApi* | [**ListManagerVirtualMedia**](docs/DefaultApi.md#listmanagervirtualmedia) | **Get** /redfish/v1/Managers/{managerId}/VirtualMedia | 
-*DefaultApi* | [**ListManagers**](docs/DefaultApi.md#listmanagers) | **Get** /redfish/v1/Managers | 
-*DefaultApi* | [**ListSystems**](docs/DefaultApi.md#listsystems) | **Get** /redfish/v1/Systems | 
-*DefaultApi* | [**ResetSystem**](docs/DefaultApi.md#resetsystem) | **Post** /redfish/v1/Systems/{ComputerSystemId}/Actions/ComputerSystem.Reset | 
-*DefaultApi* | [**SetSystem**](docs/DefaultApi.md#setsystem) | **Patch** /redfish/v1/Systems/{systemId} | 
+*DefaultApi* | [**ListManagerVirtualMedia**](docs/DefaultApi.md#listmanagervirtualmedia) | **Get** /redfish/v1/Managers/{managerId}/VirtualMedia/ | 
+*DefaultApi* | [**ListManagers**](docs/DefaultApi.md#listmanagers) | **Get** /redfish/v1/Managers/ | 
+*DefaultApi* | [**ListSystems**](docs/DefaultApi.md#listsystems) | **Get** /redfish/v1/Systems/ | 
+*DefaultApi* | [**ResetSystem**](docs/DefaultApi.md#resetsystem) | **Post** /redfish/v1/Systems/{ComputerSystemId}/Actions/ComputerSystem.Reset/ | 
+*DefaultApi* | [**SetSystem**](docs/DefaultApi.md#setsystem) | **Patch** /redfish/v1/Systems/{systemId}/ | 
 
 
 ## Documentation For Models
@@ -55,15 +100,17 @@ Class | Method | HTTP request | Description
  - [ComputerSystemActions](docs/ComputerSystemActions.md)
  - [ComputerSystemReset](docs/ComputerSystemReset.md)
  - [ConnectedVia](docs/ConnectedVia.md)
+ - [FirmwareInventory](docs/FirmwareInventory.md)
  - [Health](docs/Health.md)
  - [IdRef](docs/IdRef.md)
- - [IndicatorLed](docs/IndicatorLed.md)
+ - [IndicatorLED](docs/IndicatorLED.md)
  - [InsertMediaRequestBody](docs/InsertMediaRequestBody.md)
  - [Manager](docs/Manager.md)
  - [ManagerLinks](docs/ManagerLinks.md)
  - [ManagerType](docs/ManagerType.md)
  - [MemorySummary](docs/MemorySummary.md)
  - [Message](docs/Message.md)
+ - [Payload](docs/Payload.md)
  - [PowerState](docs/PowerState.md)
  - [ProcessorSummary](docs/ProcessorSummary.md)
  - [RedfishError](docs/RedfishError.md)
@@ -71,11 +118,16 @@ Class | Method | HTTP request | Description
  - [ResetRequestBody](docs/ResetRequestBody.md)
  - [ResetType](docs/ResetType.md)
  - [Root](docs/Root.md)
+ - [SimpleUpdateRequestBody](docs/SimpleUpdateRequestBody.md)
  - [State](docs/State.md)
  - [Status](docs/Status.md)
  - [SystemLinks](docs/SystemLinks.md)
+ - [Task](docs/Task.md)
+ - [TaskState](docs/TaskState.md)
  - [TransferMethod](docs/TransferMethod.md)
  - [TransferProtocolType](docs/TransferProtocolType.md)
+ - [UpdateService](docs/UpdateService.md)
+ - [UpdateServiceActions](docs/UpdateServiceActions.md)
  - [VirtualMedia](docs/VirtualMedia.md)
  - [VirtualMediaActions](docs/VirtualMediaActions.md)
  - [VirtualMediaActionsVirtualMediaEjectMedia](docs/VirtualMediaActionsVirtualMediaEjectMedia.md)
@@ -85,6 +137,22 @@ Class | Method | HTTP request | Description
 
  Endpoints do not require authorization.
 
+
+## Documentation for Utility Methods
+
+Due to the fact that model structure members are all pointers, this package contains
+a number of utility functions to easily obtain pointers to values of basic types.
+Each of these functions takes a value of the given basic type and returns a pointer to it:
+
+* `PtrBool`
+* `PtrInt`
+* `PtrInt32`
+* `PtrInt64`
+* `PtrFloat`
+* `PtrFloat32`
+* `PtrFloat64`
+* `PtrString`
+* `PtrTime`
 
 ## Author
 
