@@ -9,18 +9,12 @@ import (
 
 //go:generate mockery -name=RedfishAPI -output ./mocks
 type RedfishAPI interface {
-	EjectVirtualMedia(context.Context,
-		string,
-		string,
-		map[string]interface{},
-	) (client.RedfishError,
-		*http.Response,
-		error,
-	)
-
 	GetManager(context.Context,
 		string,
-	) (client.Manager,
+	) client.ApiGetManagerRequest
+
+	GetManagerExecute(client.ApiGetManagerRequest,
+	) (*client.Manager,
 		*http.Response,
 		error,
 	)
@@ -28,20 +22,29 @@ type RedfishAPI interface {
 	GetManagerVirtualMedia(context.Context,
 		string,
 		string,
-	) (client.VirtualMedia,
+	) client.ApiGetManagerVirtualMediaRequest
+
+	GetManagerVirtualMediaExecute(client.ApiGetManagerVirtualMediaRequest,
+	) (*client.VirtualMedia,
 		*http.Response,
 		error,
 	)
 
 	GetRoot(context.Context,
-	) (client.Root,
+	) client.ApiGetRootRequest
+
+	GetRootExecute(client.ApiGetRootRequest,
+	) (*client.Root,
 		*http.Response,
 		error,
 	)
 
 	GetSystem(context.Context,
 		string,
-	) (client.ComputerSystem,
+	) client.ApiGetSystemRequest
+
+	GetSystemExecute(client.ApiGetSystemRequest,
+	) (*client.ComputerSystem,
 		*http.Response,
 		error,
 	)
@@ -49,43 +52,58 @@ type RedfishAPI interface {
 	InsertVirtualMedia(context.Context,
 		string,
 		string,
-		client.InsertMediaRequestBody,
-	) (client.RedfishError,
+	) client.ApiInsertVirtualMediaRequest
+
+	InsertVirtualMediaExecute(client.ApiInsertVirtualMediaRequest,
+	) (*client.RedfishError,
 		*http.Response,
 		error,
 	)
 
 	ListManagerVirtualMedia(context.Context,
 		string,
-	) (client.Collection,
+	) client.ApiListManagerVirtualMediaRequest
+
+	ListManagerVirtualMediaExecute(client.ApiListManagerVirtualMediaRequest,
+	) (*client.Collection,
 		*http.Response,
 		error,
 	)
 
 	ListManagers(context.Context,
-	) (client.Collection,
+	) client.ApiListManagersRequest
+
+	ListManagersExecute(client.ApiListManagersRequest,
+	) (*client.Collection,
 		*http.Response,
 		error,
 	)
 
 	ListSystems(context.Context,
-	) (client.Collection,
+	) client.ApiListSystemsRequest
+
+	ListSystemsExecute(client.ApiListSystemsRequest,
+	) (*client.Collection,
 		*http.Response,
 		error,
 	)
 
 	ResetSystem(context.Context,
 		string,
-		client.ResetRequestBody,
-	) (client.RedfishError,
+	) client.ApiResetSystemRequest
+
+	ResetSystemExecute(client.ApiResetSystemRequest,
+	) (*client.RedfishError,
 		*http.Response,
 		error,
 	)
 
 	SetSystem(context.Context,
 		string,
-		client.ComputerSystem,
-	) (client.ComputerSystem,
+	) client.ApiSetSystemRequest
+
+	SetSystemExecute(client.ApiSetSystemRequest,
+	) (*client.ComputerSystem,
 		*http.Response,
 		error,
 	)
